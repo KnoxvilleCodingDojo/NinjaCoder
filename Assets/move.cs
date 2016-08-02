@@ -1,46 +1,101 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class move : MonoBehaviour {
+public class move : MonoBehaviour
+{
+    private float _speed = 400;
+    private Rigidbody2D _ninja;
+    private SpriteRenderer _spriteRenderer;
 
-	public float speed;
-    public float minForce;
-    public float maxForce;
-    public float counter;
-    private float counter2;
-
-    private Rigidbody2D myScriptsRigidbody2D;
+    private bool isDancing = false;
+    private int i = 0;
 
     void Start()
     {
-        
-        myScriptsRigidbody2D = GetComponent<Rigidbody2D>();
-        Push();
-
+        _ninja = GetComponent<Rigidbody2D>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _ninja.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        _ninja.drag = 2;
+        ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1); ArrowNavigation(0, 1); ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1);
+        ArrowNavigation(0, 1); ArrowNavigation(0, 1);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        counter2 -= Time.deltaTime;
-        if (counter2 < 0)
+        if (Input.GetKey(KeyCode.Space))
         {
-            Push();
-            counter2 = counter;
+            ArrowNavigation(0, 1);
+        }
+        if (Input.GetKey(KeyCode.J))
+        {
+            ArrowNavigation(0, -1);
+        }
+        if (Input.GetKey(KeyCode.K))
+        {
+            ArrowNavigation(-1, 0);
+        }
+        if (Input.GetKey(KeyCode.L))
+        {
+            ArrowNavigation(1, 0);
+        }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            _ninja.MoveRotation(180);
+        }
+        if (isDancing)
+        {
+            if (i % 10 == 0)
+            {
+                _spriteRenderer.flipX = !_spriteRenderer.flipX;
+            }
 
+            i++;
         }
 
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            isDancing = !isDancing;
+
+            if (isDancing)
+            {
+                _ninja.MoveRotation(180);
+            }
+            else
+            {
+                _ninja.MoveRotation(270);
+            }
+        }
+
+        var pos = Camera.main.WorldToViewportPoint(_ninja.position);
+        if (pos.x < 0)
+        {
+            pos.x += 1;
+        }
+        if (pos.x > 1)
+        {
+            pos.x -= 1;
+        }
+        if (pos.y < 0)
+        {
+            pos.y += 1;
+        }
+        if (pos.y > 1)
+        {
+            pos.y -= 1;
+        }
+        _ninja.position = Camera.main.ViewportToWorldPoint(pos);
     }
 
-
-    void Push()
+    void ArrowNavigation(int x, int y)
     {
-        float force = Random.Range(minForce, maxForce);
-        float x = Random.Range(-1f, 1f);
-        float y = Random.Range(-1f, 1f);
-
-        myScriptsRigidbody2D.AddForce(force * new Vector2(x, y) * speed);
+        _ninja.AddForce(new Vector2(x, y) * Time.deltaTime * _speed);
     }
-
 }
 
 
